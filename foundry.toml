@@ -1,0 +1,11 @@
+[profile.default]
+src = 'src'
+out = 'out'
+libs = ['lib']
+
+rpc_storage_caching = { chains = ["bsc"], endpoints = "all" }
+
+[rpc_endpoints]
+bsc = "https://rpc.ankr.com/bsc"
+
+# See more config options https://github.com/foundry-rs/foundry/tree/master/config
