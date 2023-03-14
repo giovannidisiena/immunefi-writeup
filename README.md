@@ -7,7 +7,7 @@ In an apparent compromise of the Ankr admin deployer key, the attacker sent a tr
 
 In this article, we will be analyzing both exploits and then we’ll create our own version of the attack to steal funds, testing it against a local fork. You can check the full PoC [here](https://github.com/giovannidisiena/immunefi-writeup).
 
-This article was written by Giovanni Di Siena, a smart contract security researcher at [Cyfrin](https://www.cyfrin.io/).
+This article was written by [Giovanni Di Siena](https://twitter.com/giovannidisiena), a smart contract security researcher at [Cyfrin](https://www.cyfrin.io/).
 
 ### Background
 Ankr is a multi-chain infrastructure and liquid staking protocol while Helio is an over-collateralized lending protocol. Both are built on the Binance Smart Chain (BSC).
