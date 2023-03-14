@@ -1,7 +1,7 @@
 ## Hack Analysis: Ankr & Helio, December 2022
 
 ### Introduction
-[Ankr](https://twitter.com/ankr) protocol was hacked on December 2nd, 2022, when an attacker was able to mint 6 quadrillion of its reward-bearing aBNBc staking tokens, resulting in $5m worth of damage. A secondary exploit occurred on [Helio protocol](https://helio.money/) due to stale pricing of the aBNBc token following the draining of liquidity pools as the original attacker swapped 20 trillion tokens for BNB. Helio was incorrectly leveraging a BNB/USD price oracle which did not reflect this sell-off in aBNBc, so another attacker was able to borrow 16m HAY tokens against aBNBc which were purchased at a heavily discounted rate and then sold for $15.5m.
+[Ankr protocol](https://twitter.com/ankr) was hacked on December 2nd, 2022, when an attacker was able to mint 6 quadrillion of its reward-bearing aBNBc staking tokens, resulting in $5m worth of damage. A secondary exploit occurred on [Helio protocol](https://helio.money/) due to stale pricing of the aBNBc token following the draining of liquidity pools as the original attacker swapped 20 trillion tokens for BNB. Helio was incorrectly leveraging a BNB/USD price oracle which did not reflect this sell-off in aBNBc, so another attacker was able to borrow 16m HAY tokens against aBNBc which were purchased at a heavily discounted rate and then sold for $15.5m.
 
 In an apparent compromise of the Ankr admin deployer key, the attacker sent a transaction to upgrade the aBNBc contract to their own malicious implementation, allowing any caller to mint an unlimited number of tokens. This exploit occurred on the same day as wider protocol maintenance operations but it is not clear whether the admin key was leaked during this process.
 
