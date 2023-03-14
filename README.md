@@ -1,13 +1,13 @@
 ## Hack Analysis: Ankr & Helio, December 2022
 
 ### Introduction
-Ankr protocol was hacked on December 2nd, 2022, when an attacker was able to mint 6 quadrillion of its reward-bearing aBNBc staking tokens, resulting in $5m worth of damage. A secondary exploit occurred on Helio protocol due to stale pricing of the aBNBc token following the draining of liquidity pools as the original attacker swapped 20 trillion tokens for BNB. Helio was incorrectly leveraging a BNB/USD price oracle which did not reflect this sell-off in aBNBc, so another attacker was able to borrow 16m HAY tokens against aBNBc which were purchased at a heavily discounted rate and then sold for $15.5m.
+[Ankr protocol](https://twitter.com/ankr) was hacked on December 2nd, 2022, when an attacker was able to mint 6 quadrillion of its reward-bearing aBNBc staking tokens, resulting in $5m worth of damage. A secondary exploit occurred on [Helio protocol](https://helio.money/) due to stale pricing of the aBNBc token following the draining of liquidity pools as the original attacker swapped 20 trillion tokens for BNB. Helio was incorrectly leveraging a BNB/USD price oracle which did not reflect this sell-off in aBNBc, so another attacker was able to borrow 16m HAY tokens against aBNBc which were purchased at a heavily discounted rate and then sold for $15.5m.
 
 In an apparent compromise of the Ankr admin deployer key, the attacker sent a transaction to upgrade the aBNBc contract to their own malicious implementation, allowing any caller to mint an unlimited number of tokens. This exploit occurred on the same day as wider protocol maintenance operations but it is not clear whether the admin key was leaked during this process.
 
 In this article, we will be analyzing both exploits and then we’ll create our own version of the attack to steal funds, testing it against a local fork. You can check the full PoC [here](https://github.com/giovannidisiena/immunefi-writeup).
 
-This article was written by Giovanni Di Siena, a smart contract security researcher at Cyfrin.
+This article was written by Giovanni Di Siena, a smart contract security researcher at [Cyfrin](https://www.cyfrin.io/).
 
 ### Background
 Ankr is a multi-chain infrastructure and liquid staking protocol while Helio is an over-collateralized lending protocol. Both are built on the Binance Smart Chain (BSC).
@@ -23,7 +23,7 @@ The compromised Ankr [admin deployer](https://bscscan.com/txs?a=0x2ffc59d32a5246
 
 ![Malicious upgrade](./images/malicious_upgrade.png)
 
-As shown above, the explpoit steps using the admin deployer key included an implementation [upgrade](https://bscscan.com/tx/0xcbc5ff4a6c9a66274f9bde424777c3dc862ab576e282fbea3c9c2609ca3e282b) and a [malicious call](https://bscscan.com/tx/0xe367d05e7ff37eb6d0b7d763495f218740c979348d7a3b6d8e72d3b947c86e33) to an unknown selector.
+As shown above, the exploit steps using the admin deployer key included an implementation [upgrade](https://bscscan.com/tx/0xcbc5ff4a6c9a66274f9bde424777c3dc862ab576e282fbea3c9c2609ca3e282b) and a [malicious call](https://bscscan.com/tx/0xe367d05e7ff37eb6d0b7d763495f218740c979348d7a3b6d8e72d3b947c86e33) to an unknown selector.
 
 ![Malicious call](./images/malicious_call.png)
 
@@ -112,7 +112,7 @@ In this case, we can assume that it is used to keep track of balances due to inc
 storage[temp1] = storage[temp1] + arg1;
 ```
 
-Another useful method for verifying this assunption is to look at the storage layout of the previous implementation contract, remembering that `0x65` is `101` in decimal:
+Another useful method for verifying this assumption is to look at the storage layout of the previous implementation contract, remembering that `0x65` is `101` in decimal:
 
 ![Storage layout](./images/storage_layout.png)
 
