@@ -98,7 +98,7 @@ function func_16D3(var arg0, var arg1) {
     }
 ```
 
-If we hadn't already figured it out, from `arg0 & 0xffffffffffffffffffffffffffffffffffffffff` we can deduce that the first argument should be an address due to bitwise and with a 20-byte mask. The next lines are setting up memory for calculation of the storage slot corresponding to `hash(key, slot)` of a mapping:
+If we hadn't already figured it out, from `arg0 & 0xffffffffffffffffffffffffffffffffffffffff` we can deduce that the first argument should be an address due to bitwise AND with a 20-byte mask. The next lines are setting up memory for calculation of the storage slot corresponding to `hash(key, slot)` of a mapping:
 
 ```
 memory[0x00:0x20] = temp0 & 0xffffffffffffffffffffffffffffffffffffffff;
